@@ -82,9 +82,12 @@ jobs:
         run: |
           docker pull ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
 
-      #- name: Stop old container
-      #  run: |
-      #    docker ps -q --filter "name=networksecurity" | grep -q . && docker stop networksecurity && docker rm -fv networksecurity
+      - name: Stop and remove old container if exists
+        run: |
+          if [ "$(docker ps -aq -f name=networksecurity)" ]; then
+            docker stop networksecurity || true
+            docker rm -fv networksecurity || true
+          fi
 
       - name: Run Docker Container
         run: |
@@ -98,3 +101,4 @@ jobs:
       - name: Clean previous images
         run: |
           docker system prune -f
+
